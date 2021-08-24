@@ -1,7 +1,10 @@
+import { Box, List, ListIcon, ListItem } from '@chakra-ui/react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
+import React from 'react'
 import styles from '../styles/Home.module.css'
+import { CheckCircleIcon, QuestionIcon } from '@chakra-ui/icons'
 
 const Home: NextPage = () => {
   return (
@@ -14,43 +17,34 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          Welcome to <a href="https://ciesvi.vercel.app">ciesvi!</a>
         </h1>
 
         <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
+          Get started. Upload your CSV. Do something with each of the rows.
         </p>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+        <Box alignSelf="center" p="4" mb="4" borderRadius="md" borderColor="gray.300" borderWidth="1px">
+          <List spacing={3}>
+            <ListItem>
+              <ListIcon as={CheckCircleIcon} color="green.500" />
+              For each of row data, hit a HTTPS REST API (can add custom data too)
+            </ListItem>
+            <ListItem color="gray.400">
+              <ListIcon as={QuestionIcon} color="yellow.500" />
+              For each of row data, fill string template (probably soon)
+            </ListItem>
+            <ListItem color="gray.400">
+              <ListIcon as={QuestionIcon} color="yellow.500" />
+              For each of row data, transform it to new form (...soon?)
+            </ListItem>
+          </List>
+        </Box>
+        <br />
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <h6 className={styles.title} style={{ fontSize: '24px', border: '1px solid #0070f3', padding: '8px 12px', borderRadius: '16px' }}>
+          <a href="https://ciesvi.vercel.app/upload">Upload my CSV</a>
+        </h6>
       </main>
 
       <footer className={styles.footer}>

@@ -360,7 +360,7 @@ const Upload: NextPage = () => {
                 <RadioGroup defaultValue="1">
                   <Stack spacing={4} direction="row">
                     <Radio value="1">Hit a HTTPS REST API endpoint with row and custom data</Radio>
-                    <Radio value="2" isDisabled>Fill this string template with row data (probably soon)</Radio>
+                    <Radio value="2" isDisabled>Fill string template with row data (probably soon)</Radio>
                     <Radio value="3" isDisabled>Transform row data (...soon?)</Radio>
                   </Stack>
                 </RadioGroup>
