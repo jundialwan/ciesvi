@@ -107,12 +107,16 @@ const Upload: NextPage = () => {
         }
 
         const res = await axios.request({
-          method: requestMethod,
-          url: url,
+          method: 'POST',
+          url: '/api/executeRow',
           headers: {
             'content-type': 'application/json'
           },
-          data: bodyJson
+          data: {
+            url,
+            method: requestMethod,
+            body: bodyJson
+          }
         })
 
         if (res.status >=200 && res.status < 300) {
@@ -162,12 +166,16 @@ const Upload: NextPage = () => {
           }
   
           res = await axios.request({
-            method: requestMethod,
-            url: url,
+            method: 'POST',
+            url: '/api/executeRow',
             headers: {
               'content-type': 'application/json'
             },
-            data: bodyJson
+            data: {
+              url,
+              method: requestMethod,
+              body: bodyJson
+            }
           })
   
           if (res.status >=200 && res.status < 300) {
