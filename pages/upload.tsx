@@ -130,6 +130,8 @@ const Upload: NextPage = () => {
     }
   }
 
+  const wait = (timeToDelay: number) => new Promise((resolve) => setTimeout(resolve, timeToDelay))
+
   const executeAllRows = async (e: any) => {
     e.preventDefault()
 
@@ -200,6 +202,8 @@ const Upload: NextPage = () => {
             }
           ]) : prevState)
         }
+
+        await wait(1240) // delay to prevent race condition on the receiving end
       }
     }
   }
