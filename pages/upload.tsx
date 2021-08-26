@@ -19,7 +19,7 @@ import {
   Td,
   TableCaption,
   Box,
-  Text, 
+  Text,
   Heading,
   FormControl,
   FormLabel,
@@ -52,7 +52,7 @@ const Upload: NextPage = () => {
   const [executionResults, setExecutionResults] = useState<{ [key: string]: any }[]>([])
 
   const handleOpenDialog = (e: any) => {
-    // Note that the ref is set async, so it might be null at some point 
+    // Note that the ref is set async, so it might be null at some point
     if (uploadBtnRef?.current) {
       uploadBtnRef.current.open(e)
     }
@@ -84,17 +84,17 @@ const Upload: NextPage = () => {
 
       setHitAPIError('')
       setHitAPIResult('')
-  
+
       const requestMethod = e.target.requestMethod.value
       const url = e.target.url.value
       const body = e.target.body.value
-  
-      
+
+
       try {
         const bodyCompile = handlebars.compile(body)
         console.log({ row: parsedData[0] })
         const replacedBody = bodyCompile({ row: parsedData[0] })
-  
+
         const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
         const bodyJson = JSON.parse(replacedBody)
 
@@ -148,23 +148,25 @@ const Upload: NextPage = () => {
 
       for (let i in parsedData) {
         const row = parsedData[i]
+        if (!row) continue
+
         let res: any
 
         try {
           const bodyCompile = handlebars.compile(body)
           const replacedBody = bodyCompile({ row: row })
-    
+
           const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
           const bodyJson = JSON.parse(replacedBody)
-  
+
           if (!urlRegExp.test(url)) {
             throw 'URL not a valid HTTP/HTTPS URL'
           }
-  
+
           if (!(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(requestMethod))) {
             throw 'Invalid request method'
           }
-  
+
           res = await axios.request({
             method: 'POST',
             url: '/api/executeRow',
@@ -177,7 +179,7 @@ const Upload: NextPage = () => {
               body: bodyJson
             }
           })
-  
+
           if (res.status >=200 && res.status < 300) {
             setExecutionResults(prevState => prevState ? ([
               ...prevState,
@@ -211,7 +213,7 @@ const Upload: NextPage = () => {
           ]) : prevState)
         }
 
-        await wait(1240) // delay to prevent race condition on the receiving end
+        await wait(Number(process.env.NEXT_DELAY) || 0) // delay to prevent race condition on the receiving end
       }
     }
   }
@@ -229,7 +231,7 @@ const Upload: NextPage = () => {
               </Box>
               <AccordionIcon />
             </AccordionButton>
-            
+
 
             <AccordionPanel p="2">
               <CSVReader
@@ -301,7 +303,7 @@ const Upload: NextPage = () => {
           </AccordionItem>
 
           <AccordionItem isDisabled={!dataHeader || !parsedData}>
-            
+
             <AccordionButton bgColor="gray.200">
               <Box flex="1" textAlign="left">
                 <Text color="gray.700" fontSize="xl">
@@ -313,7 +315,7 @@ const Upload: NextPage = () => {
 
             <AccordionPanel p="4" alignItems="center">
               {
-                parsedData && dataHeader ? 
+                parsedData && dataHeader ?
                   <>
                     <Box alignSelf="center" p="4" mb="4" borderRadius="md" borderColor="gray.300" borderWidth="1px">
                       <StatGroup>
@@ -366,7 +368,7 @@ const Upload: NextPage = () => {
               </Box>
               <AccordionIcon />
             </AccordionButton>
-            
+
             <AccordionPanel p="4" alignItems="center">
               <Box alignSelf="center" p="4" mb="4" borderRadius="md" borderColor="gray.300" borderWidth="1px">
                 <RadioGroup defaultValue="1">
@@ -393,7 +395,7 @@ const Upload: NextPage = () => {
                         <Radio name="requestMethod" value="PATCH">PATCH</Radio>
                         <Radio name="requestMethod" value="DELETE">DELETE</Radio>
                       </HStack>
-                    </RadioGroup>      
+                    </RadioGroup>
                   </FormControl>
 
                   <FormControl id="first-name" mb="4" isRequired>
@@ -422,13 +424,13 @@ const Upload: NextPage = () => {
                   <br /><br />
 
                   {
-                    hitAPIError ? 
+                    hitAPIError ?
                       <Code>{hitAPIError.toString()}</Code>
                       : null
                   }
 
                   {
-                    hitAPIresult ? 
+                    hitAPIresult ?
                       <Code>{hitAPIresult.toString()}</Code>
                       : null
                   }
@@ -442,7 +444,7 @@ const Upload: NextPage = () => {
             <AccordionButton bgColor="gray.200">
               <Box flex="1" textAlign="left">
                 <Text color="gray.700" fontSize="xl">
-                  Step 4️⃣ Execute 
+                  Step 4️⃣ Execute
                 </Text>
               </Box>
               <AccordionIcon />
@@ -454,9 +456,9 @@ const Upload: NextPage = () => {
               <Box alignSelf="center" p="4" mb="4" borderRadius="md" borderColor="gray.300" borderWidth="1px">
                 <Heading as="h5" size="md">Results</Heading>
                 <Divider mt="4" mb="4" />
-                
+
                 {
-                  parsedData && executionResults && executionResults.length > 0 ? 
+                  parsedData && executionResults && executionResults.length > 0 ?
                     <>
                       <Box alignSelf="center" p="4" mb="4" borderRadius="md" borderColor="gray.300" borderWidth="1px">
                         <StatGroup>
