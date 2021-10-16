@@ -8,7 +8,7 @@ export default async function handler(
 ) {
   if (req.method === 'POST') {
     const { body: reqBody } = req
-    const { method, url, body } = reqBody
+    const { method, url, body, headers } = reqBody
 
     console.log({ method, url, body })
 
@@ -17,7 +17,8 @@ export default async function handler(
       url,
       data: body,
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
+        ...headers
       }
     })
 

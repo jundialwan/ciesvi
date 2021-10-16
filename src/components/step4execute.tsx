@@ -37,13 +37,7 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
         let res: any
 
         try {
-          const bodyCompile = handlebars.compile(body)
-          const replacedBody = bodyCompile({ row: row })
-    
           const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
-          const bodyJson = JSON.parse(replacedBody)
-          const headersJson = JSON.parse(headers || '{}')
-  
           if (!urlRegExp.test(url)) {
             throw 'URL not a valid HTTP/HTTPS URL'
           }
@@ -51,17 +45,29 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
           if (!(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(requestMethod))) {
             throw 'Invalid request method'
           }
+
+          const urlCompile = handlebars.compile(body)
+          const replacedUrl = urlCompile({ row: row })
+
+          const headersCompile = handlebars.compile(body)
+          const replacedHeaders = headersCompile({ row: row })
+
+          const bodyCompile = handlebars.compile(body)
+          const replacedBody = bodyCompile({ row: row })
+    
+          const bodyJson = JSON.parse(replacedBody)
+          const headersJson = JSON.parse(replacedHeaders || '{}')
   
           res = await axios.request({
-            method: requestMethod,
+            method: 'post',
             url: '/api/executeRow',
             headers: {
-              'content-type': 'application/json',
-              ...headersJson
+              'content-type': 'application/json'
             },
             data: {
-              url,
+              url: replacedUrl,
               method: requestMethod,
+              headers: headersJson,
               body: bodyJson
             }
           })
