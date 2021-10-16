@@ -1,5 +1,5 @@
 import { NextPage } from 'next'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { WarningIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import debounce from 'lodash.debounce'
 
@@ -22,8 +22,13 @@ const Upload: NextPage = () => {
   
   const [parsedData, setParsedData] = useState<{ [key: string]: any }[]>()
   const [dataHeader, setdataHeader] = useState<string[]>()
-  const requestMethod: any = (document.querySelector('input[name="requestMethod"]:checked')  as HTMLInputElement)?.value
-  const url = (document.getElementById('url') as HTMLInputElement)?.value
+  const [requestMethod, setRequestMethod] = useState<string>()
+  const [url, setUrl] = useState<string>()
+
+  useEffect(() => {
+    setRequestMethod((document.querySelector('input[name="requestMethod"]:checked') as HTMLInputElement)?.value)
+    setUrl((document.getElementById('url') as HTMLInputElement)?.value)
+  }, [])
 
   return (
     <Container maxW="container.lg" centerContent>
