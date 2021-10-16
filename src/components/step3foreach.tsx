@@ -13,8 +13,10 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
   const [hitAPIresult, setHitAPIResult] = useState<any>()
 
   const onSubmitTestHitAPI = async (e: any) => {
+    console.log('submit')
     if (parsedData && dataHeader) {
       e.preventDefault()
+      console.log({parsedData, dataHeader})
 
       setHitAPIError('')
       setHitAPIResult('')
@@ -23,23 +25,45 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
       const url = e.target.url.value
       const body = e.target.body.value
       const headers = e.target.headers.value
+
+      console.log({
+        requestMethod,
+        url,
+        body,
+        headers,
+      })
   
       try {
-        const bodyCompile = handlebars.compile(body)
-        console.log({ row: parsedData[0] })
-        const replacedBody = bodyCompile({ row: parsedData[0] })
-  
         const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
-        const bodyJson = JSON.parse(replacedBody)
-        const headersJson = JSON.parse(headers)
 
-        if (!urlRegExp.test(url)) {
+        const bodyCompile = handlebars.compile(body)
+        const replacedBody = bodyCompile({ row: parsedData[0] })
+
+        const urlCompile = handlebars.compile(url)
+        const replacedUrl = urlCompile({ row: parsedData[0] })
+
+        const headersCompile = handlebars.compile(headers)
+        const replacedHeaders = headersCompile({ row: parsedData[0] })
+  
+        const bodyJson = JSON.parse(replacedBody)
+        const headersJson = JSON.parse(replacedHeaders || '{}')
+
+        console.log({
+          url: replacedUrl,
+          method: requestMethod,
+          headers: headersJson,
+          body: bodyJson
+        })
+
+        if (!urlRegExp.test(replacedUrl)) {
           throw 'URL not a valid HTTP/HTTPS URL'
         }
 
         if (!(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(requestMethod))) {
           throw 'Invalid request method'
         }
+
+        
 
         const res = await axios.request({
           method: 'POST',
@@ -49,11 +73,13 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
             ...headersJson
           },
           data: {
-            url,
+            url: replacedUrl,
             method: requestMethod,
+            headers: headersJson,
             body: bodyJson
           }
         })
+        console.log(res)
 
         if (res.status >=200 && res.status < 300) {
           setHitAPIResult(JSON.stringify({
@@ -65,7 +91,8 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
           throw `${res.status} ${res.statusText} - ${res.data}`
         }
       } catch(e: any) {
-        setHitAPIError(e.msg)
+        console.log(e)
+        setHitAPIError(e)
       }
     }
   }

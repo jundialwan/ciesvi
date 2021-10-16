@@ -46,10 +46,10 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
             throw 'Invalid request method'
           }
 
-          const urlCompile = handlebars.compile(body)
+          const urlCompile = handlebars.compile(url)
           const replacedUrl = urlCompile({ row: row })
 
-          const headersCompile = handlebars.compile(body)
+          const headersCompile = handlebars.compile(headers)
           const replacedHeaders = headersCompile({ row: row })
 
           const bodyCompile = handlebars.compile(body)

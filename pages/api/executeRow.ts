@@ -25,7 +25,7 @@ export default async function handler(
     console.log({ status: reqRes.status, data: reqRes.data, headers: reqRes.headers })
 
     if (reqRes.status >=200 && reqRes.status < 300) {
-      return res.status(200).json({ status: 'success' })
+      return res.status(200).json({ status: 'success', data: { status: reqRes.status, data: reqRes.data, headers: reqRes.headers } })
     } else {
       return res.status(reqRes.status).json({ status: 'error', data: { status: reqRes.status, data: reqRes.data } })
     }
