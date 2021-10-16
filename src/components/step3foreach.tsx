@@ -15,9 +15,6 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
   const onSubmitTestHitAPI = async (e: any) => {
     if (parsedData && dataHeader) {
       e.preventDefault()
-      console.log(e.target.requestMethod.value)
-      console.log(e.target.url.value)
-      console.log(e.target.body.value)
 
       setHitAPIError('')
       setHitAPIResult('')
@@ -25,8 +22,8 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
       const requestMethod = e.target.requestMethod.value
       const url = e.target.url.value
       const body = e.target.body.value
+      const headers = e.target.headers.value
   
-      
       try {
         const bodyCompile = handlebars.compile(body)
         console.log({ row: parsedData[0] })
@@ -34,6 +31,7 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
   
         const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
         const bodyJson = JSON.parse(replacedBody)
+        const headersJson = JSON.parse(headers)
 
         if (!urlRegExp.test(url)) {
           throw 'URL not a valid HTTP/HTTPS URL'
@@ -47,7 +45,8 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
           method: 'POST',
           url: '/api/executeRow',
           headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            ...headersJson
           },
           data: {
             url,
@@ -65,8 +64,8 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
         } else {
           throw `${res.status} ${res.statusText} - ${res.data}`
         }
-      } catch(e) {
-        setHitAPIError(e)
+      } catch(e: any) {
+        setHitAPIError(e.msg)
       }
     }
   }
@@ -107,8 +106,15 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
           </FormControl>
 
           <FormControl id="headers" mb="4">
-            <FormLabel>Request Headers</FormLabel>
-            <FormHelperText>{"'Content-Type: application/json' is added by default for non-GET request. Can not add extra header right now, coming soon."}</FormHelperText>
+            <FormLabel>Request Headers (json format)</FormLabel>
+            <Textarea
+              id="headers"
+              name="headers"
+              placeholder={`{"authorization":"Bearer 1234-5678"}`}
+              size="md"
+              resize="vertical"
+            />
+            <FormHelperText>{"'Content-Type: application/json' is added by default for non-GET request."}</FormHelperText>
           </FormControl>
 
           <FormControl id="body" mb="4">
