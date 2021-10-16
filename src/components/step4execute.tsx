@@ -1,7 +1,7 @@
 import { Box, Button, Divider, Heading, Stat, StatGroup, StatLabel, StatNumber, Table, TableCaption, Tbody, Th, Thead, Tr } from '@chakra-ui/react'
-import axios from 'axios'
+import axios, { Method } from 'axios'
 import handlebars from 'handlebars'
-import React, {FC, useState} from 'react'
+import React, {FC, useEffect, useState} from 'react'
 
 type Step4ExecuteType = {
   parsedData: { [key: string]: any }[] | undefined,
@@ -10,9 +10,18 @@ type Step4ExecuteType = {
 
 const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
   const [executionResults, setExecutionResults] = useState<{ [key: string]: any }[]>([])
-  const requestMethod: any = (document.querySelector('input[name="requestMethod"]:checked')  as HTMLInputElement)?.value
-  const url = (document.getElementById('url') as HTMLInputElement)?.value
-  const body = (document.getElementById('body') as HTMLTextAreaElement)?.value
+
+  const [requestMethod, setRequestMethod] = useState<Method>()
+  const [url, setUrl] = useState<string>()
+  const [body, setBody] = useState<string>()
+  const [headers, setHeaders] = useState<string>()
+
+  useEffect(() => {
+    setRequestMethod((document.querySelector('input[name="requestMethod"]:checked') as HTMLInputElement)?.value as Method)
+    setUrl((document.getElementById('url') as HTMLInputElement)?.value)
+    setBody((document.getElementById('body') as HTMLTextAreaElement)?.value)
+    setHeaders((document.getElementById('headers') as HTMLTextAreaElement)?.value)
+  }, [])
 
   const wait = (timeToDelay: number) => new Promise((resolve) => setTimeout(resolve, timeToDelay))
 
@@ -33,6 +42,7 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
     
           const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
           const bodyJson = JSON.parse(replacedBody)
+          const headersJson = JSON.parse(headers || '{}')
   
           if (!urlRegExp.test(url)) {
             throw 'URL not a valid HTTP/HTTPS URL'
@@ -43,10 +53,11 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
           }
   
           res = await axios.request({
-            method: 'POST',
+            method: requestMethod,
             url: '/api/executeRow',
             headers: {
-              'content-type': 'application/json'
+              'content-type': 'application/json',
+              ...headersJson
             },
             data: {
               url,
