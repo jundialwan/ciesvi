@@ -63,14 +63,11 @@ const Step3ForEach: FC<Step3ForEachType> = ({ parsedData, dataHeader }) => {
           throw 'Invalid request method'
         }
 
-        
-
         const res = await axios.request({
           method: 'POST',
           url: '/api/executeRow',
           headers: {
-            'content-type': 'application/json',
-            ...headersJson
+            'content-type': 'application/json'
           },
           data: {
             url: replacedUrl,

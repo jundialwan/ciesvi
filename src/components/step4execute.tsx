@@ -11,24 +11,17 @@ type Step4ExecuteType = {
 const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
   const [executionResults, setExecutionResults] = useState<{ [key: string]: any }[]>([])
 
-  const [requestMethod, setRequestMethod] = useState<Method>()
-  const [url, setUrl] = useState<string>()
-  const [body, setBody] = useState<string>()
-  const [headers, setHeaders] = useState<string>()
-
-  useEffect(() => {
-    setRequestMethod((document.querySelector('input[name="requestMethod"]:checked') as HTMLInputElement)?.value as Method)
-    setUrl((document.getElementById('url') as HTMLInputElement)?.value)
-    setBody((document.getElementById('body') as HTMLTextAreaElement)?.value)
-    setHeaders((document.getElementById('headers') as HTMLTextAreaElement)?.value)
-  }, [])
-
   const wait = (timeToDelay: number) => new Promise((resolve) => setTimeout(resolve, timeToDelay))
 
   const executeAllRows = async (e: any) => {
     e.preventDefault()
 
-    console.log(requestMethod, url, body)
+    const requestMethod = (document.querySelector('input[name="requestMethod"]:checked') as HTMLInputElement)?.value
+    const url = (document.getElementById('url') as HTMLInputElement)?.value
+    const body = (document.getElementById('body') as HTMLTextAreaElement)?.value
+    const headers = (document.getElementById('headers') as HTMLTextAreaElement)?.value
+
+    console.log(requestMethod, url, body, headers)
 
     if (url && requestMethod && parsedData && dataHeader) {
 
@@ -38,13 +31,6 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
 
         try {
           const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/
-          if (!urlRegExp.test(url)) {
-            throw 'URL not a valid HTTP/HTTPS URL'
-          }
-  
-          if (!(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(requestMethod))) {
-            throw 'Invalid request method'
-          }
 
           const urlCompile = handlebars.compile(url)
           const replacedUrl = urlCompile({ row: row })
@@ -57,6 +43,21 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
     
           const bodyJson = JSON.parse(replacedBody)
           const headersJson = JSON.parse(replacedHeaders || '{}')
+
+          if (!urlRegExp.test(replacedUrl)) {
+            throw 'URL not a valid HTTP/HTTPS URL'
+          }
+  
+          if (!(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(requestMethod))) {
+            throw 'Invalid request method'
+          }
+
+          console.log({
+            url: replacedUrl,
+            method: requestMethod,
+            headers: headersJson,
+            body: bodyJson
+          })
   
           res = await axios.request({
             method: 'post',
@@ -73,28 +74,9 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
           })
   
           if (res.status >=200 && res.status < 300) {
-            setExecutionResults(prevState => prevState ? ([
-              ...prevState,
-              {
-                status: 'success',
-                reason: '',
-                apiResult: JSON.stringify({
-                  status: res.status,
-                  data: res.data,
-                  headers: res.headers
-                }),
-                rowData: JSON.stringify(row)
-              }
-            ]) : prevState)
-          } else {
-            throw `${res.status} ${res.statusText} - ${res.data}`
-          }
-        } catch(e) {
-          setExecutionResults(prevState => prevState ? ([
-            ...prevState,
-            {
-              status: 'error',
-              reason: e,
+            const result = {
+              status: 'success',
+              reason: '',
               apiResult: JSON.stringify({
                 status: res.status,
                 data: res.data,
@@ -102,10 +84,33 @@ const Step4Execute: FC<Step4ExecuteType> = ({ parsedData, dataHeader }) => {
               }),
               rowData: JSON.stringify(row)
             }
+            console.log(result)
+            setExecutionResults(prevState => prevState ? ([
+              ...prevState,
+              result
+            ]) : prevState)
+          } else {
+            throw `${res.status} ${res.statusText} - ${res.data}`
+          }
+        } catch(e) {
+          const error = {
+            status: 'error',
+            reason: e,
+            apiResult: JSON.stringify({
+              status: res?.status,
+              data: res?.data,
+              headers: res?.headers
+            }),
+            rowData: JSON.stringify(row)
+          }
+          console.log(error)
+          setExecutionResults(prevState => prevState ? ([
+            ...prevState,
+            error
           ]) : prevState)
         }
 
-        await wait(1240) // delay to prevent race condition on the receiving end
+        await wait(1500) // delay to prevent race condition on the receiving end
       }
     }
   }
